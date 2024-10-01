@@ -1,4 +1,4 @@
-﻿package com.mateus_back.leilao.controller;
+package com.mateus_back.leilao.controller;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
