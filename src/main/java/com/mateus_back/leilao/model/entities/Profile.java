@@ -1,4 +1,4 @@
-package com.mateus_back.leilao.model;
+package com.mateus_back.leilao.model.entities;
 
 import jakarta.persistence.*;
 import lombok.Data;

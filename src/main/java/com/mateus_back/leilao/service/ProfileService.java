@@ -1,6 +1,6 @@
 package com.mateus_back.leilao.service;
 
-import com.mateus_back.leilao.model.Profile;
+import com.mateus_back.leilao.model.entities.Profile;
 import com.mateus_back.leilao.repository.interfaces.IProfileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
