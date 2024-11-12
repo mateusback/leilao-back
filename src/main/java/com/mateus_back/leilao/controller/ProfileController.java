@@ -1,6 +1,6 @@
 package com.mateus_back.leilao.controller;
 
-import com.mateus_back.leilao.model.Profile;
+import com.mateus_back.leilao.model.entities.Profile;
 import com.mateus_back.leilao.service.ProfileService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
