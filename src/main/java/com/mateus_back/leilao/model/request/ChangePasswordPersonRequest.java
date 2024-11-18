@@ -6,5 +6,5 @@ import lombok.Getter;
 public class ChangePasswordPersonRequest {
     private String email;
     private String newPassword;
-    private String recoveryCode;
+    private int recoveryCode;
 }

@@ -1,13 +1,9 @@
 package com.mateus_back.leilao.model.response;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
-@EqualsAndHashCode(callSuper = true)
 @Data
-public class PersonAuthResponse extends BaseResponse {
+public class PersonAuthResponse {
     private String email;
     private String token;
 

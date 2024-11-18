@@ -1,10 +1,14 @@
 package com.mateus_back.leilao.controller;
 
+import com.mateus_back.leilao.common.ActionResult;
 import com.mateus_back.leilao.config.security.JwtService;
 import com.mateus_back.leilao.model.request.ChangePasswordPersonRequest;
+import com.mateus_back.leilao.model.request.ConfirmRegistrationRequest;
 import com.mateus_back.leilao.model.request.PersonAuthRequest;
 import com.mateus_back.leilao.model.entities.Person;
+import com.mateus_back.leilao.model.request.PersonRegisterRequest;
 import com.mateus_back.leilao.service.PersonService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -32,30 +36,27 @@ public class PersonController {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         authRequest.getEmail(), authRequest.getPassword()));
+        if(personService.isUserConfirmed(authRequest.getEmail()))
+            throw new RuntimeException("Usuário não confirmado");
         return jwtService.generateToken(authentication.getName());
     }
     @PostMapping
-    public Person create(@Valid @RequestBody Person person) {
+    public ResponseEntity<ActionResult> create(@Valid @RequestBody PersonRegisterRequest person) {
         return personService.create(person);
     }
 
     @PostMapping("/recover-password")
-    public String recoverPassword(@RequestBody PersonAuthRequest request) {
+    public ResponseEntity<ActionResult> recoverPassword(@RequestBody PersonAuthRequest request) {
         return personService.sendRecoveryCode(request);
     }
 
     @PatchMapping("/change-password")
-    public String changePassword(@RequestBody ChangePasswordPersonRequest request) {
+    public ResponseEntity<ActionResult> changePassword(@RequestBody ChangePasswordPersonRequest request) {
         return personService.changePassword(request);
     }
 
     @PatchMapping("/confirm-registration")
-    public Person confirmRegistration(@RequestParam String email, @RequestParam String validationCode) {
-        return personService.confirmarCadastro(email, validationCode);
-    }
-
-    @PutMapping
-    public Person update(@Valid @RequestBody Person person) {
-        return personService.create(person);
+    public Person confirmRegistration(@RequestBody ConfirmRegistrationRequest request) {
+        return personService.confirmRegistration(request.getEmail(), request.getValidationCode());
     }
 }

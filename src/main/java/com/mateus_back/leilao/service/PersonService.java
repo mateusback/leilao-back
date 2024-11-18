@@ -1,10 +1,14 @@
 package com.mateus_back.leilao.service;
 
+import com.mateus_back.leilao.common.ActionResult;
+import com.mateus_back.leilao.model.builders.PersonBuilder;
 import com.mateus_back.leilao.model.entities.Person;
 import com.mateus_back.leilao.model.request.ChangePasswordPersonRequest;
 import com.mateus_back.leilao.model.request.PersonAuthRequest;
+import com.mateus_back.leilao.model.request.PersonRegisterRequest;
 import com.mateus_back.leilao.repository.interfaces.IPersonRepository;
 import jakarta.mail.MessagingException;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -24,12 +28,14 @@ public class PersonService implements UserDetailsService {
         this.personRepository = personRepository;
     }
 
-    public Person create(Person person) {
-        Person personSaved = personRepository.save(person);
-
+    public ResponseEntity<ActionResult> create(PersonRegisterRequest request) {
+        var personEntity = toEntity(request);
+        personEntity.generateValidationCode();
+        Person personSaved = personRepository.save(personEntity);
 
         Context context = new Context();
         context.setVariable("name", personSaved.getName());
+        context.setVariable("validationCode", personSaved.getValidationCode());
         try {
             emailService.sendTemplateEmail(
                     personSaved.getEmail(),
@@ -38,7 +44,7 @@ public class PersonService implements UserDetailsService {
         } catch (MessagingException e) {
             e.printStackTrace();
         }
-        return personSaved;
+        return ActionResult.returnSuccess("Cadastro efetuado com sucesso", personSaved);
     }
 
     public Person update(Person person) {
@@ -63,7 +69,7 @@ public class PersonService implements UserDetailsService {
                 .orElseThrow(() -> new NoSuchElementException("Objeto não encontrado"));
     }
 
-    public Person confirmarCadastro(String email, String validationCode) {
+    public Person confirmRegistration(String email, int validationCode) {
         Person person = personRepository.findByEmail(email)
                 .orElseThrow(() -> new NoSuchElementException("Objeto não encontrado"));
 
@@ -71,23 +77,35 @@ public class PersonService implements UserDetailsService {
         return personRepository.save(person);
     }
 
-    public String changePassword(ChangePasswordPersonRequest request){
-        Person person = personRepository.findByEmailAndRecoveryCode(request.getEmail(), request.getRecoveryCode())
+    public ResponseEntity<ActionResult> changePassword(ChangePasswordPersonRequest request){
+        Person person = personRepository.findByEmailAndValidationCode(request.getEmail(), request.getRecoveryCode())
                 .orElseThrow(() -> new NoSuchElementException("Objeto não encontrado"));
 
         person.setPassword(request.getNewPassword());
         personRepository.save(person);
-        return "Senha alterada com sucesso";
+        return ActionResult.returnSuccess("Senha alterada com sucesso", null);
     }
 
-    public String sendRecoveryCode(PersonAuthRequest request){
+    public ResponseEntity<ActionResult> sendRecoveryCode(PersonAuthRequest request){
         Person person = personRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new NoSuchElementException("Objeto não encontrado"));
 
         person.generateValidationCode();
         personRepository.save(person);
-        emailService.sendSimpleEmail(person.getEmail(), "Código de validação", person.getValidationCode());
-        return "Código de validação enviado para o email";
+        emailService.sendSimpleEmail(person.getEmail(), "Código de validação", person.getValidationCode() + "");
+        return ActionResult.returnSuccess("Código de validação enviado para o email", null);
+    }
+
+
+    private Person toEntity(PersonRegisterRequest request) {
+        return PersonBuilder.builder()
+                .withName(request.getNome())
+                .withEmail(request.getEmail())
+                .withCpf(request.getCpf())
+                .withIdade(request.getIdade())
+                .withPassword(request.getSenha())
+                .withDefaultProfile()
+                .build();
     }
 
 }

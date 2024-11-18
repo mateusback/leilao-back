@@ -56,7 +56,7 @@ public class Person implements UserDetails{
 
     @JsonIgnore
     @Column(name = "validation_code")
-    private String validationCode;
+    private int validationCode;
 
     @Temporal(TemporalType.TIMESTAMP)
     private Date validationCodeValidity;
@@ -65,14 +65,14 @@ public class Person implements UserDetails{
     @Setter(value = AccessLevel.NONE)
     private List<PersonProfile> personProfile;
 
-    public void confirmRegistration(String validationCode) {
+    public void confirmRegistration(int validationCode) {
         if (this.isConfirmado()) {
             throw new IllegalArgumentException("Usuário já confirmado");
         }
-        if (this.getValidationCode() == null) {
+        if (this.getValidationCode() == 0) {
             throw new IllegalArgumentException("Código de validação não encontrado");
         }
-        if (!this.getValidationCode().equals(validationCode)) {
+        if (this.getValidationCode() != validationCode) {
             throw new IllegalArgumentException("Código de validação inválido");
         }
 
@@ -80,7 +80,7 @@ public class Person implements UserDetails{
     }
 
     public void generateValidationCode() {
-        this.validationCode = "aula";
+        this.validationCode = (int) (Math.random() * 10000);
         this.validationCodeValidity = new Date(new Date().getTime() + (20*60*1000));
     }
 
