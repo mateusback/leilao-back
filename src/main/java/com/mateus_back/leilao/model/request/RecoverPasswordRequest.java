@@ -3,7 +3,7 @@ package com.mateus_back.leilao.model.request;
 import lombok.Data;
 
 @Data
-public class PersonAuthRequest {
+public class RecoverPasswordRequest {
     private String email;
     private String password;
 }

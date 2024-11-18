@@ -4,10 +4,11 @@ import com.mateus_back.leilao.common.ActionResult;
 import com.mateus_back.leilao.config.security.JwtService;
 import com.mateus_back.leilao.model.request.ChangePasswordPersonRequest;
 import com.mateus_back.leilao.model.request.ConfirmRegistrationRequest;
-import com.mateus_back.leilao.model.request.PersonAuthRequest;
+import com.mateus_back.leilao.model.request.RecoverPasswordRequest;
 import com.mateus_back.leilao.model.entities.Person;
 import com.mateus_back.leilao.model.request.PersonRegisterRequest;
 import com.mateus_back.leilao.service.PersonService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -19,6 +20,7 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/person")
+@Tag(name = "Person", description = "Controller responsável por registros de usuários")
 public class PersonController {
 
     private final PersonService personService;
@@ -31,22 +33,25 @@ public class PersonController {
         this.personService = personService;
     }
 
+    @PostMapping
+    public ResponseEntity<ActionResult> create(@Valid @RequestBody PersonRegisterRequest person) {
+         return personService.create(person);
+    }
+
     @PostMapping("/login")
-    public String authenticateUser(@RequestBody PersonAuthRequest authRequest) {
+    public ResponseEntity<ActionResult> authenticateUser(@RequestBody RecoverPasswordRequest authRequest) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         authRequest.getEmail(), authRequest.getPassword()));
         if(personService.isUserConfirmed(authRequest.getEmail()))
-            throw new RuntimeException("Usuário não confirmado");
-        return jwtService.generateToken(authentication.getName());
-    }
-    @PostMapping
-    public ResponseEntity<ActionResult> create(@Valid @RequestBody PersonRegisterRequest person) {
-        return personService.create(person);
+            return ActionResult.returnUnauthorized("Usuário não confirmado");
+
+        return ActionResult.returnSuccess("Token Gerado com sucesso!",
+                jwtService.generateToken(authentication.getName()));
     }
 
     @PostMapping("/recover-password")
-    public ResponseEntity<ActionResult> recoverPassword(@RequestBody PersonAuthRequest request) {
+    public ResponseEntity<ActionResult> recoverPassword(@RequestBody RecoverPasswordRequest request) {
         return personService.sendRecoveryCode(request);
     }
 

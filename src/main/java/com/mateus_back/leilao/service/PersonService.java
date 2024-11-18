@@ -4,7 +4,7 @@ import com.mateus_back.leilao.common.ActionResult;
 import com.mateus_back.leilao.model.builders.PersonBuilder;
 import com.mateus_back.leilao.model.entities.Person;
 import com.mateus_back.leilao.model.request.ChangePasswordPersonRequest;
-import com.mateus_back.leilao.model.request.PersonAuthRequest;
+import com.mateus_back.leilao.model.request.RecoverPasswordRequest;
 import com.mateus_back.leilao.model.request.PersonRegisterRequest;
 import com.mateus_back.leilao.repository.interfaces.IPersonRepository;
 import jakarta.mail.MessagingException;
@@ -86,7 +86,7 @@ public class PersonService implements UserDetailsService {
         return ActionResult.returnSuccess("Senha alterada com sucesso", null);
     }
 
-    public ResponseEntity<ActionResult> sendRecoveryCode(PersonAuthRequest request){
+    public ResponseEntity<ActionResult> sendRecoveryCode(RecoverPasswordRequest request){
         Person person = personRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new NoSuchElementException("Objeto não encontrado"));
 
@@ -104,7 +104,6 @@ public class PersonService implements UserDetailsService {
                 .withCpf(request.getCpf())
                 .withIdade(request.getIdade())
                 .withPassword(request.getSenha())
-                .withDefaultProfile()
                 .build();
     }
 

@@ -21,6 +21,7 @@ public class ActionResult {
         this.data = data;
     }
 
+    //region 2xx
     public static ResponseEntity<ActionResult> returnSuccess(String message, Object data) {
         return ResponseEntity.ok(new ActionResult(200, message, data));
     }
@@ -29,14 +30,24 @@ public class ActionResult {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(new ActionResult(201, message));
     }
+    //endregion
+
+    //region 4xx
+    public static ResponseEntity<ActionResult> returnBadRequest(String message) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ActionResult(400, message));
+    }
 
     public static ResponseEntity<ActionResult> returnError(String message) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new ActionResult(401, message));
+    }
+    //endregion
+
+    //region 5xx
+    public static ResponseEntity<ActionResult> returnUnauthorized(String message) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(new ActionResult(500, message));
     }
-
-    public static ResponseEntity<ActionResult> returnDefinedError(String message, int statusCode) {
-        return ResponseEntity.status(statusCode)
-                .body(new ActionResult(statusCode, message));
-    }
+    //endregion
 }
