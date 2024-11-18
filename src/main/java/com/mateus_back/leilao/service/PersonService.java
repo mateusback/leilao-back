@@ -69,12 +69,12 @@ public class PersonService implements UserDetailsService {
                 .orElseThrow(() -> new NoSuchElementException("Objeto não encontrado"));
     }
 
-    public Person confirmRegistration(String email, int validationCode) {
+    public ResponseEntity<ActionResult> confirmRegistration(String email, int validationCode) {
         Person person = personRepository.findByEmail(email)
                 .orElseThrow(() -> new NoSuchElementException("Objeto não encontrado"));
 
         person.confirmRegistration(validationCode);
-        return personRepository.save(person);
+        return ActionResult.returnSuccess("Senha alterada com sucesso!", personRepository.save(person));
     }
 
     public ResponseEntity<ActionResult> changePassword(ChangePasswordPersonRequest request){
@@ -92,7 +92,18 @@ public class PersonService implements UserDetailsService {
 
         person.generateValidationCode();
         personRepository.save(person);
-        emailService.sendSimpleEmail(person.getEmail(), "Código de validação", person.getValidationCode() + "");
+
+        Context context = new Context();
+        context.setVariable("name", person.getName());
+        context.setVariable("validationCode", person.getValidationCode());
+        try {
+            emailService.sendTemplateEmail(
+                    person.getEmail(),
+                    "Código de alteração de senha", context,
+                    "index");
+        } catch (MessagingException e) {
+            e.printStackTrace();
+        }
         return ActionResult.returnSuccess("Código de validação enviado para o email", null);
     }
 

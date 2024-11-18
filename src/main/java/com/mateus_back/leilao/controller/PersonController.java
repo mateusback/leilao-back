@@ -61,7 +61,7 @@ public class PersonController {
     }
 
     @PatchMapping("/confirm-registration")
-    public Person confirmRegistration(@RequestBody ConfirmRegistrationRequest request) {
+    public ResponseEntity<ActionResult> confirmRegistration(@RequestBody ConfirmRegistrationRequest request) {
         return personService.confirmRegistration(request.getEmail(), request.getValidationCode());
     }
 }
