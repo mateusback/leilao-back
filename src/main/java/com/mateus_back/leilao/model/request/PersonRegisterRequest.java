@@ -7,6 +7,6 @@ public class PersonRegisterRequest {
     String nome;
     String email;
     int idade;
-    String Cpf;
+    String cpf;
     String senha;
 }
