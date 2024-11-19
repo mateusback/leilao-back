@@ -38,16 +38,15 @@ public class ActionResult {
                 .body(new ActionResult(400, message));
     }
 
-    public static ResponseEntity<ActionResult> returnError(String message) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+    public static ResponseEntity<ActionResult> returnUnauthorized(String message) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(new ActionResult(401, message));
+    }
+
+    public static ResponseEntity<ActionResult> returnNotFound(String message) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new ActionResult(404, message));
     }
     //endregion
 
-    //region 5xx
-    public static ResponseEntity<ActionResult> returnUnauthorized(String message) {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body(new ActionResult(500, message));
-    }
-    //endregion
 }
