@@ -1,7 +1,6 @@
 package com.mateus_back.leilao.service;
 
 import com.mateus_back.leilao.common.ActionResult;
-import com.mateus_back.leilao.model.builders.PersonBuilder;
 import com.mateus_back.leilao.model.entities.Person;
 import com.mateus_back.leilao.model.request.ChangePasswordPersonRequest;
 import com.mateus_back.leilao.model.request.RecoverPasswordRequest;
@@ -22,7 +21,6 @@ public class PersonService implements UserDetailsService {
 
     private final IPersonRepository personRepository;
     private final EmailService emailService;
-
     public PersonService(EmailService emailService, IPersonRepository personRepository) {
         this.emailService = emailService;
         this.personRepository = personRepository;
@@ -74,7 +72,7 @@ public class PersonService implements UserDetailsService {
                 .orElseThrow(() -> new NoSuchElementException("Objeto não encontrado"));
 
         person.confirmRegistration(validationCode);
-        return ActionResult.returnSuccess("Senha alterada com sucesso!", personRepository.save(person));
+        return ActionResult.returnSuccess("Cadastro Confirmado com sucesso!", personRepository.save(person));
     }
 
     public ResponseEntity<ActionResult> changePassword(ChangePasswordPersonRequest request){
@@ -82,6 +80,7 @@ public class PersonService implements UserDetailsService {
                 .orElseThrow(() -> new NoSuchElementException("Objeto não encontrado"));
 
         person.setPassword(request.getNewPassword());
+        person.resetValidationCode();
         personRepository.save(person);
         return ActionResult.returnSuccess("Senha alterada com sucesso", null);
     }
@@ -109,12 +108,12 @@ public class PersonService implements UserDetailsService {
 
 
     private Person toEntity(PersonRegisterRequest request) {
-        return PersonBuilder.builder()
-                .withName(request.getNome())
-                .withEmail(request.getEmail())
-                .withCpf(request.getCpf())
-                .withIdade(request.getIdade())
-                .withPassword(request.getSenha())
+        return Person.builder()
+                .name(request.getNome())
+                .email(request.getEmail())
+                .cpf(request.getCpf())
+                .idade(request.getIdade())
+                .password(request.getSenha())
                 .build();
     }
 

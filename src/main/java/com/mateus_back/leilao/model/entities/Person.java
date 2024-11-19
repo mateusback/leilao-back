@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
+import lombok.*;
 import org.hibernate.validator.constraints.br.CPF;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -20,14 +21,14 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import lombok.AccessLevel;
-import lombok.Data;
-import lombok.Setter;
 
 @Entity
 @Data
 @Table(name = "person")
 @JsonIgnoreProperties({"authorities"})
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Person implements UserDetails{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -75,8 +76,13 @@ public class Person implements UserDetails{
         if (this.getValidationCode() != validationCode) {
             throw new IllegalArgumentException("Código de validação inválido");
         }
-
+        this.resetValidationCode();
         this.confirmado = true;
+    }
+
+    public void resetValidationCode() {
+        this.validationCode = 0;
+        this.validationCodeValidity = new Date();
     }
 
     public void generateValidationCode() {

@@ -2,17 +2,15 @@ package com.mateus_back.leilao.controller;
 
 import com.mateus_back.leilao.common.ActionResult;
 import com.mateus_back.leilao.config.security.JwtService;
-import com.mateus_back.leilao.model.request.ChangePasswordPersonRequest;
-import com.mateus_back.leilao.model.request.ConfirmRegistrationRequest;
-import com.mateus_back.leilao.model.request.RecoverPasswordRequest;
-import com.mateus_back.leilao.model.entities.Person;
-import com.mateus_back.leilao.model.request.PersonRegisterRequest;
+import com.mateus_back.leilao.model.request.*;
 import com.mateus_back.leilao.service.PersonService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -21,6 +19,7 @@ import jakarta.validation.Valid;
 @RestController
 @RequestMapping("/api/person")
 @Tag(name = "Person", description = "Controller responsável por registros de usuários")
+@CrossOrigin
 public class PersonController {
 
     private final PersonService personService;
@@ -39,15 +38,18 @@ public class PersonController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<ActionResult> authenticateUser(@RequestBody RecoverPasswordRequest authRequest) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        authRequest.getEmail(), authRequest.getPassword()));
-        if(personService.isUserConfirmed(authRequest.getEmail()))
-            return ActionResult.returnUnauthorized("Usuário não confirmado");
+    public ResponseEntity<ActionResult> authenticateUser(@RequestBody PersonAuthRequest authRequest) {
+        try {
+            var authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
+                            authRequest.getEmail(), authRequest.getPassword()));
+            if(!personService.isUserConfirmed(authRequest.getEmail()))
+                return ActionResult.returnUnauthorized("Usuário não confirmado");
 
-        return ActionResult.returnSuccess("Token Gerado com sucesso!",
-                jwtService.generateToken(authentication.getName()));
+            return ActionResult.returnSuccess("Token Gerado com sucesso!",
+                    jwtService.generateToken(authentication.getName()));
+        } catch (BadCredentialsException bcEx){
+            return ActionResult.returnBadRequest(bcEx.getMessage());
+        }
     }
 
     @PostMapping("/recover-password")

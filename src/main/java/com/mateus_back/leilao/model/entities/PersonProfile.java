@@ -1,6 +1,7 @@
 package com.mateus_back.leilao.model.entities;
 
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Data;
 
 @Entity
