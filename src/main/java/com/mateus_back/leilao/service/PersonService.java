@@ -1,12 +1,16 @@
 package com.mateus_back.leilao.service;
 
 import com.mateus_back.leilao.common.ActionResult;
+import com.mateus_back.leilao.config.FrontendConfig;
+import com.mateus_back.leilao.config.security.JwtService;
 import com.mateus_back.leilao.model.entities.Person;
 import com.mateus_back.leilao.model.request.ChangePasswordPersonRequest;
 import com.mateus_back.leilao.model.request.RecoverPasswordRequest;
 import com.mateus_back.leilao.model.request.PersonRegisterRequest;
+import com.mateus_back.leilao.model.response.PersonAuthResponse;
 import com.mateus_back.leilao.repository.interfaces.IPersonRepository;
 import jakarta.mail.MessagingException;
+import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -23,9 +27,16 @@ public class PersonService implements UserDetailsService {
 
     private final IPersonRepository personRepository;
     private final EmailService emailService;
-    public PersonService(EmailService emailService, IPersonRepository personRepository) {
+    private final JwtService jwtService;
+
+    private final FrontendConfig frontendConfig;
+
+
+    public PersonService(EmailService emailService, IPersonRepository personRepository, JwtService jwtService, FrontendConfig frontendConfig) {
         this.emailService = emailService;
         this.personRepository = personRepository;
+        this.jwtService = jwtService;
+        this.frontendConfig = frontendConfig;
     }
 
     public ResponseEntity<ActionResult> create(PersonRegisterRequest request) {
@@ -33,6 +44,7 @@ public class PersonService implements UserDetailsService {
             log.info("Criando usuário com email: {}", request.getEmail());
 
             var personEntity = toEntity(request);
+            personEntity.setPassword(request.getPassword());
             personEntity.generateValidationCode();
             Person personSaved = personRepository.save(personEntity);
             log.info("Usuário criado com sucesso, enviando email de confirmação");
@@ -40,6 +52,7 @@ public class PersonService implements UserDetailsService {
             Context context = new Context();
             context.setVariable("name", personSaved.getName());
             context.setVariable("validationCode", personSaved.getValidationCode());
+            context.setVariable("url", getFrontUrl().concat("/confirm-email").concat("?email=").concat(personEntity.getEmail()));
 
             try {
                 emailService.sendTemplateEmail(
@@ -91,7 +104,9 @@ public class PersonService implements UserDetailsService {
             person.confirmRegistration(validationCode);
 
             log.info("Cadastro confirmado com sucesso");
-            return ActionResult.returnSuccess("Cadastro Confirmado com sucesso!", personRepository.save(person));
+            var token = jwtService.generateToken(email);
+            personRepository.save(person);
+            return ActionResult.returnSuccess("Cadastro confirmado com sucesso!", new PersonAuthResponse(email, token));
         } catch (Exception e) {
             log.error("Erro ao confirmar cadastro", e);
             return ActionResult.returnBadRequest("Erro ao confirmar cadastro, tente novamente mais tarde");
@@ -101,7 +116,7 @@ public class PersonService implements UserDetailsService {
     public ResponseEntity<ActionResult> changePassword(ChangePasswordPersonRequest request){
         try{
             log.info("Alterando senha para o email: {}", request.getEmail());
-            Person person = personRepository.findByEmailAndValidationCode(request.getEmail(), request.getRecoveryCode())
+            Person person = personRepository.findByEmailAndValidationCode(request.getEmail(), request.getPasscode())
                     .orElse(null);
 
             if (person == null)
@@ -112,7 +127,8 @@ public class PersonService implements UserDetailsService {
             personRepository.save(person);
 
             log.info("Senha alterada com sucesso");
-            return ActionResult.returnSuccess("Senha alterada com sucesso", null);
+            var token = jwtService.generateToken(person.getEmail());
+            return ActionResult.returnSuccess("Senha alterada com sucesso", new PersonAuthResponse(person.getEmail(), token));
         } catch (Exception e) {
             log.error("Erro ao alterar senha", e);
             return ActionResult.returnBadRequest("Erro ao alterar senha, tente novamente mais tarde");
@@ -126,6 +142,8 @@ public class PersonService implements UserDetailsService {
 
             if(person == null)
                 return ActionResult.returnNotFound("Usuário não encontrado.");
+            if(!person.isConfirmado())
+                return ActionResult.returnBadRequest("Usuário não confirmado. Por favor, primeiro confirme seu email com o código enviado em seu email.");
 
             person.generateValidationCode();
             personRepository.save(person);
@@ -134,12 +152,13 @@ public class PersonService implements UserDetailsService {
             Context context = new Context();
             context.setVariable("name", person.getName());
             context.setVariable("validationCode", person.getValidationCode());
+            context.setVariable("url", getFrontUrl().concat("/change-password").concat("?email=").concat(person.getEmail()));
 
             try {
                 emailService.sendTemplateEmail(
                         person.getEmail(),
                         "Código de alteração de senha", context,
-                        "index");
+                        "emailReocoveryPassword");
             } catch (MessagingException e) {
                 log.error("Erro ao enviar email de recuperação de senha", e);
             }
@@ -164,5 +183,8 @@ public class PersonService implements UserDetailsService {
                 .build();
     }
 
+    private String getFrontUrl() {
+        return frontendConfig.getUrl();
+    }
     //endregion
 }

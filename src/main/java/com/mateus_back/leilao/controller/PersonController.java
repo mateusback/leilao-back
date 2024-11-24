@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
 
+import java.util.Objects;
+
 @RestController
 @RequestMapping("/api/person")
 @Tag(name = "Person", description = "Controller responsável por registros de usuários")
@@ -41,9 +43,9 @@ public class PersonController {
             var authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                             authRequest.getEmail(), authRequest.getPassword()));
             if(!personService.isUserConfirmed(authRequest.getEmail()))
-                return ActionResult.returnUnauthorized("Usuário não confirmado");
+                return ActionResult.returnUnauthorized("Usuário não confirmado. Por favor, confirme seu email com o código enviado em seu email.");
 
-            return ActionResult.returnSuccess("Token Gerado com sucesso!",
+            return ActionResult.returnSuccess("Token gerado com sucesso!",
                     jwtService.generateToken(authentication.getName()));
         } catch (BadCredentialsException bcEx){
             return ActionResult.returnBadRequest(bcEx.getMessage());
