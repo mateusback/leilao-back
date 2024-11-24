@@ -156,11 +156,11 @@ public class PersonService implements UserDetailsService {
     //region private
     private Person toEntity(PersonRegisterRequest request) {
         return Person.builder()
-                .name(request.getNome())
+                .name(request.getName())
                 .email(request.getEmail())
                 .cpf(request.getCpf())
-                .idade(request.getIdade())
-                .password(request.getSenha())
+                .idade(request.getAge())
+                .password(request.getPassword())
                 .build();
     }
 

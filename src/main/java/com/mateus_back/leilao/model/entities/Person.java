@@ -86,7 +86,11 @@ public class Person implements UserDetails{
     }
 
     public void generateValidationCode() {
-        this.validationCode = (int) (Math.random() * 10000);
+        this.validationCode = 0;
+        for (int i = 0; i < 5; i++) {
+            int digit = (int) (Math.random() * 10);
+            this.validationCode = this.validationCode * 10 + digit;
+        }
         this.validationCodeValidity = new Date(new Date().getTime() + (20*60*1000));
     }
 

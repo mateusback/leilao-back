@@ -9,8 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -64,6 +62,6 @@ public class PersonController {
 
     @PatchMapping("/confirm-registration")
     public ResponseEntity<ActionResult> confirmRegistration(@RequestBody ConfirmRegistrationRequest request) {
-        return personService.confirmRegistration(request.getEmail(), request.getValidationCode());
+        return personService.confirmRegistration(request.getEmail(), request.getPasscode());
     }
 }

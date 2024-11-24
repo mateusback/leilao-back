@@ -4,9 +4,9 @@ import lombok.Getter;
 
 @Getter
 public class PersonRegisterRequest {
-    String nome;
+    String name;
     String email;
-    int idade;
+    int age;
     String cpf;
-    String senha;
+    String password;
 }

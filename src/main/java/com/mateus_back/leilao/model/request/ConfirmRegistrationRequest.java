@@ -5,5 +5,5 @@ import lombok.Getter;
 @Getter
 public class ConfirmRegistrationRequest {
     private String email;
-    private int validationCode;
+    private int passcode;
 }
