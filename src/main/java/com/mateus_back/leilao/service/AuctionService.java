@@ -12,11 +12,13 @@ import com.mateus_back.leilao.repository.interfaces.IPersonRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class AuctionService {
-    private IAuctionRepository auctionRepository;
-    private ICategoryRepository categoryRepository;
-    private IPersonRepository personRepository;
+    private final IAuctionRepository auctionRepository;
+    private final ICategoryRepository categoryRepository;
+    private final IPersonRepository personRepository;
 
     public AuctionService(IAuctionRepository auctionRepository,
                           ICategoryRepository categoryRepository,
@@ -25,12 +27,12 @@ public class AuctionService {
         this.categoryRepository = categoryRepository;
         this.personRepository = personRepository;
     }
-    public ResponseEntity<ActionResult> createAuction(AuctionRequest request) {
+    public ResponseEntity<ActionResult> create(AuctionRequest request) {
         var auction = auctionRepository.save(ToEntity(request));
         return ActionResult.returnSuccess("Leilão criado com sucesso", auction);
     }
 
-    public ResponseEntity<ActionResult>  updateAuction(AuctionEditRequest request){
+    public ResponseEntity<ActionResult> update(AuctionEditRequest request){
         Auction auction = auctionRepository.findById(request.getId())
                 .orElseThrow(() -> new RuntimeException("Leilão não encontrado"));
 
@@ -57,15 +59,15 @@ public class AuctionService {
 
 
     private Auction ToEntity(AuctionRequest request) {
-        Auction auction = new Auction();
-        auction.setTitle(request.getTitle());
-        auction.setDescription(request.getDescription());
-        auction.setStartDateTime(request.getStartDateTime());
-        auction.setEndDateTime(request.getEndDateTime());
-        auction.setStatus(request.getStatus());
-        auction.setObservation(request.getObservation());
-        auction.setIncrementValue(request.getIncrementValue());
-        auction.setMinimumBid(request.getMinimumBid());
+        var auction = Auction.builder().title(request.getTitle())
+                .description(request.getDescription())
+                .startDateTime(request.getStartDateTime())
+                .endDateTime(request.getEndDateTime())
+                .status(request.getStatus())
+                .observation(request.getObservation())
+                .incrementValue(request.getIncrementValue())
+                .minimumBid(request.getMinimumBid())
+                .build();
 
         Category category = categoryRepository.findById(request.getCategoryId())
                 .orElseThrow(() -> new RuntimeException("Categoria não encontrada"));
@@ -77,5 +79,9 @@ public class AuctionService {
 
         auction.setImages(request.getImages());
         return auction;
+    }
+
+    public List<Auction> listAll() {
+        return auctionRepository.findAll();
     }
 }
