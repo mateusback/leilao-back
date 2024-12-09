@@ -39,6 +39,12 @@ public class AuctionService {
         }
     }
 
+    public Auction findById(Long id) {
+        Auction auction = auctionRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Leilão não encontrado"));
+        return auction;
+    }
+
     public ResponseEntity<ActionResult> update(AuctionEditRequest request){
         Auction auction = auctionRepository.findById(request.getId())
                 .orElseThrow(() -> new RuntimeException("Leilão não encontrado"));

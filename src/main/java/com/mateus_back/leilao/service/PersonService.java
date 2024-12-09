@@ -28,9 +28,7 @@ public class PersonService implements UserDetailsService {
     private final IPersonRepository personRepository;
     private final EmailService emailService;
     private final JwtService jwtService;
-
     private final FrontendConfig frontendConfig;
-
 
     public PersonService(EmailService emailService, IPersonRepository personRepository, JwtService jwtService, FrontendConfig frontendConfig) {
         this.emailService = emailService;

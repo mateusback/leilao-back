@@ -31,4 +31,9 @@ public class AuctionController {
     public List<Auction> listAll() {
         return auctionService.listAll();
     }
+
+    @GetMapping("/{id}")
+    public Auction findById(@PathVariable Long id) {
+        return auctionService.findById(id);
+    }
 }
