@@ -2,13 +2,20 @@ package com.mateus_back.leilao.model.entities;
 
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Date;
+import java.util.Set;
 
 @Entity
 @Table(name = "auction")
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Auction {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,4 +42,8 @@ public class Auction {
     @ManyToOne
     @JoinColumn(name = "category_id")
     private Category category;
+    @OneToMany(mappedBy = "auction")
+    private Set<Image> images;
+    @OneToMany(mappedBy = "auction")
+    private Set<Bid> bids;
 }

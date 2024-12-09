@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.mateus_back.leilao.common.ActionResult;
 import com.mateus_back.leilao.model.entities.Category;
+import com.mateus_back.leilao.model.request.AddCategoryRequest;
 import com.mateus_back.leilao.service.CategoryService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -30,13 +31,13 @@ public class CategoryController {
     }
 
     @PostMapping
-    public ResponseEntity<ActionResult> create(@RequestBody Category category) {
+    public ResponseEntity<ActionResult> create(@RequestBody AddCategoryRequest category) {
         return categoryService.create(category);
     }
 
     @PutMapping
     public ResponseEntity<ActionResult> update(@RequestBody Category category) {
-        return categoryService.create(category);
+        return categoryService.update(category);
     }
 
     @GetMapping

@@ -14,4 +14,7 @@ public class Bid {
     private float bidValue;
     @Column(name = "date_time")
     private String dateTime;
+    @ManyToOne
+    @JoinColumn(name = "auction_id")
+    private Auction auction;
 }
