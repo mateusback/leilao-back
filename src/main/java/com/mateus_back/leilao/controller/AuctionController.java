@@ -2,8 +2,6 @@ package com.mateus_back.leilao.controller;
 
 import com.mateus_back.leilao.common.ActionResult;
 import com.mateus_back.leilao.model.entities.Auction;
-import com.mateus_back.leilao.model.entities.Category;
-import com.mateus_back.leilao.model.request.AddCategoryRequest;
 import com.mateus_back.leilao.model.request.AuctionRequest;
 import com.mateus_back.leilao.service.AuctionService;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -25,8 +23,8 @@ public class AuctionController {
     }
 
     @PostMapping
-    public ResponseEntity<ActionResult> create(@RequestBody AuctionRequest category) {
-        return auctionService.create(category);
+    public ResponseEntity<ActionResult> create(@RequestBody AuctionRequest auctionRequest) {
+        return auctionService.create(auctionRequest);
     }
 
     @GetMapping

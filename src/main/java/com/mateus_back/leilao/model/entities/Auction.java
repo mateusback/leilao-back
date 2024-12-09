@@ -1,6 +1,7 @@
 package com.mateus_back.leilao.model.entities;
 
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -42,7 +43,8 @@ public class Auction {
     @ManyToOne
     @JoinColumn(name = "category_id")
     private Category category;
-    @OneToMany(mappedBy = "auction")
+    @OneToMany(mappedBy = "auction", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private Set<Image> images;
     @OneToMany(mappedBy = "auction")
     private Set<Bid> bids;

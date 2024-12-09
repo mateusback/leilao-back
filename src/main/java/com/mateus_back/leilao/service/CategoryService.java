@@ -5,7 +5,6 @@ import java.util.NoSuchElementException;
 
 import com.mateus_back.leilao.common.ActionResult;
 import com.mateus_back.leilao.model.entities.Category;
-import com.mateus_back.leilao.model.entities.Person;
 import com.mateus_back.leilao.model.request.AddCategoryRequest;
 import com.mateus_back.leilao.repository.interfaces.ICategoryRepository;
 import com.mateus_back.leilao.repository.interfaces.IPersonRepository;
@@ -50,7 +49,7 @@ public class CategoryService {
         Category category = new Category();
         category.setName(request.getName());
         category.setObservation(request.getObservation());
-        personRepository.findbyId(request.getPersonId())
+        personRepository.findById(request.getPersonId())
                 .ifPresent(category::setPerson);
         return category;
     }
